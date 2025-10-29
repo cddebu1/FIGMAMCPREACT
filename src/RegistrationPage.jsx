@@ -34,7 +34,7 @@ function RegistrationPage() {
       const data = await response.json();
 
       if (data.success) {
-        alert('Registration successful! You can now login.');
+        alert('Registration has been completed successfully! You can now login.');
         // Clear form
         setEmail('');
         setPassword('');

@@ -35,30 +35,21 @@ test.describe('Registration Functionality', () => {
     await expect(page.getByPlaceholder('Enter Your Password')).toHaveValue(testPassword);
     await expect(page.getByPlaceholder('Confirm Your Password')).toHaveValue(testPassword);
     
-    // Step 5: Click "REGISTER" button
+    // Step 5: Set up dialog handler to capture and verify the alert message
+    let alertMessage = '';
+    page.on('dialog', async dialog => {
+      alertMessage = dialog.message();
+      await dialog.accept();
+    });
+    
+    // Click "REGISTER" button
     await page.getByRole('button', { name: 'REGISTER' }).click();
     
-    // Expected Results Verification:
-    // Note: The following assertions may need to be adjusted based on your app's actual behavior
-    
-    // Verify form submission is successful (check for success indicators)
-    // This could be a success message, redirect, or other UI change
-    // Example assertions (uncomment and adjust as needed):
-    
-    // Option 1: If redirected to login page
-    // await expect(page).toHaveURL(/.*\/(login)?$/);
-    // await expect(page.getByRole('heading', { name: 'LOGIN' })).toBeVisible();
-    
-    // Option 2: If success message is displayed
-    // await expect(page.getByText(/registration successful/i)).toBeVisible();
-    // await expect(page.getByText(/account created/i)).toBeVisible();
-    
-    // Option 3: If user is automatically logged in
-    // await expect(page).toHaveURL(/.*\/dashboard/);
-    // await expect(page.getByText(/welcome/i)).toBeVisible();
-    
-    // For now, wait a moment to see what happens after registration
+    // Wait for the alert to appear and be handled
     await page.waitForTimeout(2000);
+    
+    // Verify the success message
+    expect(alertMessage).toBe('Registration has been completed successfully! You can now login.');
     
     // Take a screenshot for manual verification during test development
     await page.screenshot({ path: `test-results/registration-success-${Date.now()}.png` });
