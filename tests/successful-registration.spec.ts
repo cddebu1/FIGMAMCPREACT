@@ -36,17 +36,19 @@ test.describe('Registration Functionality', () => {
     await expect(page.getByPlaceholder('Confirm Your Password')).toHaveValue(testPassword);
     
     // Step 5: Set up dialog handler to capture and verify the alert message
-    let alertMessage = '';
-    page.on('dialog', async dialog => {
-      alertMessage = dialog.message();
-      await dialog.accept();
+    const dialogPromise = new Promise<string>(resolve => {
+      page.once('dialog', async dialog => {
+        const message = dialog.message();
+        await dialog.accept();
+        resolve(message);
+      });
     });
     
     // Click "REGISTER" button
     await page.getByRole('button', { name: 'REGISTER' }).click();
     
-    // Wait for the alert to appear and be handled
-    await page.waitForTimeout(2000);
+    // Wait for the alert dialog and get its message
+    const alertMessage = await dialogPromise;
     
     // Verify the success message
     expect(alertMessage).toBe('Registration has been completed successfully! You can now login.');
