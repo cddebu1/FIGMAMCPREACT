@@ -22,9 +22,17 @@ function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
+        // Store JWT tokens in localStorage
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('userEmail', data.email);
+
         alert('Login successful!');
         console.log('Logged in user:', data);
-        // You can redirect to dashboard or save user info here
+
+        // Redirect to dashboard (you'll need to create this page)
+        // navigate('/dashboard');
       } else {
         alert(data.message || 'Login failed');
       }
