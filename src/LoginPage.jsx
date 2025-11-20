@@ -51,6 +51,39 @@ function LoginPage() {
     navigate('/register');
   };
 
+  const handleSignOff = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert('No user logged in');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        alert('Logged out successfully');
+      } else {
+        alert(data.message || 'Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('Error connecting to server');
+    }
+  };
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -92,6 +125,10 @@ function LoginPage() {
 
         <button className="register-redirect-link" onClick={handleRegisterRedirect}>
           Don't have an account? Register
+        </button>
+
+        <button className="login-button" type="button" onClick={handleSignOff} style={{ marginTop: '20px', backgroundColor: '#808080' }}>
+          Sign Off
         </button>
       </div>
     </div>
