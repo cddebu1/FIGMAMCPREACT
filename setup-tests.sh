@@ -22,9 +22,11 @@ echo ""
 
 # Step 2: Install Playwright browsers
 echo "Step 2: Installing Playwright browsers..."
-if ! npx playwright --version &> /dev/null; then
-    echo "  → Playwright not found, installing..."
-    npm install --save-dev @playwright/test
+# Check if @playwright/test is installed by checking package.json and node_modules
+if [ -d "node_modules/@playwright/test" ]; then
+    echo "  ✓ @playwright/test is already installed"
+else
+    echo "  ⚠ @playwright/test not found, please run 'npm install' first"
 fi
 
 echo "  → Installing Chromium browser..."
@@ -36,16 +38,21 @@ echo "Step 3: Checking environment configuration..."
 if [ ! -f ".env" ]; then
     echo "  ⚠ Warning: .env file not found!"
     echo "  → Creating .env file with default values..."
-    cat > .env << 'EOF'
+    
+    # Generate random JWT secrets for better security
+    JWT_SECRET=$(openssl rand -base64 32 2>/dev/null || echo "INSECURE_DEFAULT_PLEASE_CHANGE_ME_$(date +%s)")
+    JWT_REFRESH_SECRET=$(openssl rand -base64 32 2>/dev/null || echo "INSECURE_REFRESH_DEFAULT_PLEASE_CHANGE_ME_$(date +%s)")
+    
+    cat > .env << EOF
 MONGODB_URI=mongodb://localhost:27017/loginapp
-JWT_SECRET=your_secret_key_here_change_in_production
-JWT_REFRESH_SECRET=your_refresh_secret_key_here_change_in_production
+JWT_SECRET=${JWT_SECRET}
+JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
 JWT_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
 PORT=5000
 EOF
-    echo "  ✓ .env file created with default values"
-    echo "  ⚠ Remember to update JWT secrets for production!"
+    echo "  ✓ .env file created with randomly generated JWT secrets"
+    echo "  ℹ️  For production, consider using even stronger secrets"
 else
     echo "  ✓ .env file exists"
 fi
